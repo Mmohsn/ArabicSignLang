@@ -1,15 +1,43 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Camera Stream</title>
+<meta charset="utf-8">
+<title>Display Webcam Stream</title>
+ 
+<style>
+#container {
+	margin: 0px auto;
+	width: 500px;
+	height: 375px;
+	border: 10px #333 solid;
+}
+#videoElement {
+	width: 500px;
+	height: 375px;
+	background-color: #666;
+}
+</style>
 </head>
+ 
 <body>
-    <video id="video" width="640" height="480" autoplay></autoplay>
-    <script>
-        // Correctly pass the URL from Flask to JavaScript
-        var videoFeedUrl = "{{ url_for('video_feed') }}";
-        // Example of using this URL in a fetch call or similar
-        console.log("Video Feed URL:", videoFeedUrl);  // This should now log the correct URL
-    </script>
+<div id="container">
+	<video autoplay="true" id="videoElement">
+	
+	</video>
+</div>
+<script>
+var video = document.querySelector("#videoElement");
+
+if (navigator.mediaDevices.getUserMedia) {
+  navigator.mediaDevices.getUserMedia({ video: true })
+    .then(function (stream) {
+      video.srcObject = stream;
+    })
+    .catch(function (err0r) {
+      console.log("Something went wrong!");
+    });
+}
+
+</script>
 </body>
 </html>
