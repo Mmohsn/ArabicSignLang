@@ -5,22 +5,11 @@ import base64
 import mediapipe as mp
 import joblib
 from PIL import Image, ImageDraw, ImageFont
-from arabic_reshaper import arabic_reshaper
-from bidi.algorithm import get_display
 model = joblib.load('hand_gesture_model.pkl')
 
-categories=[
-["fine",'بخير'],
-["hello","مرحبا, كيف حالك؟"],
-["stop",'قف'],
-["yes",'نعم']]
-words = []
-sequence = ''
-fontFile = "Sahel.ttf"
-font = ImageFont.truetype(fontFile, 40)
+
 app = Flask(__name__)
 
-camera = cv2.VideoCapture(0)
 class handDetector():
     def __init__(self, mode=False, maxHands=2, modelComplexity=1,detectionCon=0.5, trackCon=0.5):
         self.mode = mode
