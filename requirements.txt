@@ -1,3 +1,4 @@
+scikit-learn
 opencv-python-headless==4.9.0.80
 opencv-contrib-python-headless==4.9.0.80
 click==7.1.2
