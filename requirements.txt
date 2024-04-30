@@ -1,4 +1,4 @@
-scikit learn==1.4.1.post1
+scikit-learn==1.4.1.post1
 opencv-python==4.9.0.80
 opencv-contrib-python==4.9.0.80
 click==7.1.2
