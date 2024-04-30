@@ -61,51 +61,6 @@ class handDetector():
             ymin, ymax = min(yList), max(yList)
             bbox = xmin, ymin, xmax, ymax
         return lmlist, bbox
-"""
-def gen_frames():  
-    while True:
-        success, frame = camera.read()  # read the camera frame
-        if not success:
-            break
-        else:
-            
-            detector = handDetector()
-            img = detector.findHands(frame)
-            lmlist, bbox = detector.findPosition(img)
-            if bbox:
-                # Your custom model and prediction code here
-                # Ensure all processing is done correctly
-                x, y, x2, y2 = bbox
-                hand_img = img[y:y2, x:x2]
-                hand_img = cv2.cvtColor(hand_img, cv2.COLOR_BGR2GRAY)
-                hand_img = cv2.resize(hand_img, (64, 64))  # Ensure the image is resized as per training
-                hand_img_flat = hand_img.flatten().reshape(1, -1)
-                prediction = model.predict(hand_img_flat)
-                for category in categories:
-                    if category[0] == prediction[0]:
-                        sequence = category[1]
-                probability = model.predict_proba(hand_img_flat).max()
-
-                reshaped_text = arabic_reshaper.reshape(sequence)   
-                bidi_text = get_display(reshaped_text) 
-                img_pil = Image.fromarray(img)
-                draw = ImageDraw.Draw(img_pil)
-                draw.text((10, 300), bidi_text, (0,0,0), font=font)
-                img = np.array(img_pil)
-                words.append(reshaped_text)   
-
-                cv2.putText(img, f'{prediction[0]} {probability:.2f}', (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
-
-                # After processing the image and adding any overlays or text:
-                prediction_data = json.dumps({'prediction': prediction[0]})
-                yield f"event: prediction\ndata: {prediction_data}\n\n"
-                ret, buffer = cv2.imencode('.jpg', img)
-                if not ret:
-                    continue  # Skip the frame if it fails to encode
-                frame = buffer.tobytes()
-                yield (b'--frame\r\n'
-                       b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')  # Correct format for HTTP streaming
-"""
 
 @app.route('/')
 def index():
