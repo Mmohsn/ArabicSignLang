@@ -1,5 +1,5 @@
-opencv-python==4.9.0.80
-opencv-contrib-python==4.9.0.80
+opencv-python-headless==4.9.0.80
+opencv-contrib-python-headless==4.9.0.80
 click==7.1.2
 Flask==1.1.2
 gunicorn==20.0.4
