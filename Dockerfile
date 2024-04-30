@@ -2,7 +2,7 @@
 FROM python:3.8-slim
 
 # Set the working directory in the container
-WORKDIR /main
+WORKDIR /
 
 # Install any needed system dependencies
 RUN apt-get update && apt-get install -y \
