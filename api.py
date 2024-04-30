@@ -1,14 +1,13 @@
-
-from flask import Flask, request, jsonify, send_file
 import cv2
 import numpy as np
+from flask import Flask,  request, jsonify, json
+import base64
 import mediapipe as mp
 import joblib
 from PIL import Image, ImageDraw, ImageFont
 from arabic_reshaper import arabic_reshaper
 from bidi.algorithm import get_display
-from io import BytesIO
-
+model = joblib.load('hand_gesture_model.pkl')
 
 categories=[
 ["fine",'بخير'],
@@ -21,6 +20,7 @@ fontFile = "Sahel.ttf"
 font = ImageFont.truetype(fontFile, 40)
 app = Flask(__name__)
 
+camera = cv2.VideoCapture(0)
 class handDetector():
     def __init__(self, mode=False, maxHands=2, modelComplexity=1,detectionCon=0.5, trackCon=0.5):
         self.mode = mode
@@ -61,49 +61,37 @@ class handDetector():
             ymin, ymax = min(yList), max(yList)
             bbox = xmin, ymin, xmax, ymax
         return lmlist, bbox
-    
-    
+
+
+@app.route('/')
+def index():
+    return app.send_static_file('index.html')
+
 @app.route('/predict', methods=['POST'])
-def predict_gesture():
-    if 'frame' not in request.files:
-        return jsonify({'error': 'No frame provided'}), 400
-    file = request.files['frame']
-    img = cv2.imdecode(np.frombuffer(file.read(), np.uint8), cv2.IMREAD_COLOR)
+def predict():
+    try:
+        data = request.json['image']
+        header, encoded = data.split(",", 1)
+        decoded = base64.b64decode(encoded)
+        nparr = np.frombuffer(decoded, np.uint8)
+        img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+        detector = handDetector()
+        img = detector.findHands(img)
+        lmlist, bbox = detector.findPosition(img)
+        if bbox:
+            x, y, x2, y2 = bbox
+            hand_img = img[y:y2, x:x2]
+            hand_img = cv2.cvtColor(hand_img, cv2.COLOR_BGR2GRAY)
+            hand_img = cv2.resize(hand_img, (64, 64))
+            hand_img_flat = hand_img.flatten().reshape(1, -1)
+            results = model.predict(hand_img_flat)
+            print(results)
+            return jsonify({'result': results[0]})
+        else:
+            return jsonify({'result': 'No hand detected'})
+    except Exception as e:
+        return jsonify({'error': str(e)})
 
-    model = joblib.load('hand_gesture_model.pkl')
-    detector = handDetector()
-
-    img = detector.findHands(img)
-    lmlist, bbox = detector.findPosition(img)
-    if bbox:
-        x, y, x2, y2 = bbox
-        hand_img = img[y:y2, x:x2]
-        hand_img = cv2.cvtColor(hand_img, cv2.COLOR_BGR2GRAY)
-        hand_img = cv2.resize(hand_img, (64, 64))
-        hand_img_flat = hand_img.flatten().reshape(1, -1)
-        prediction = model.predict(hand_img_flat)
-        print(prediction[0])
-        probability = model.predict_proba(hand_img_flat).max()
-        for category in categories:
-                if category[0] == prediction[0]:
-                    sequence = category[1]
-        reshaped_text = arabic_reshaper.reshape(sequence)   
-        bidi_text = get_display(reshaped_text) 
-        img_pil = Image.fromarray(img)
-        draw = ImageDraw.Draw(img_pil)
-        draw.text((100, 300), bidi_text, (0,0,0), font=font,align="center")
-        img = np.array(img_pil)
-        # Draw bounding box and prediction text on the image
-        cv2.rectangle(img, (x, y), (x2, y2), (0, 255, 0), 2)
-        cv2.putText(img, f"{prediction[0]} ({probability:.2f})", (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
-        
-        # Convert image to PNG and return as response
-        _, buffer = cv2.imencode('.png', img)
-        return send_file(BytesIO(buffer), mimetype='image/png'), 200
-
-    return jsonify({'error': 'No hand detected'}), 404
-
-# This block is required for the Flask application to be run directly
+    
 if __name__ == '__main__':
-    app.run(debug=True)
-
+    app.run( debug=True)
