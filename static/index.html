@@ -1,32 +1,50 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <title>Display Webcam Stream</title>
 <style>
-#container {
-    margin: 0px auto;
-    width: 500px;
-    height: 375px;
-    border: 10px #333 solid;
+body {
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(135deg, #24243E, #484776);
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Arial, sans-serif;
+    color: white;
 }
+
+#container {
+    width: 80%;
+    max-width: 960px;
+    padding: 20px;
+    border: 5px solid #333;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 10px;
+}
+
 #videoElement, #canvasElement {
-    width: 500px;
-    height: 375px;
+    width: 100%;
+    height: auto;
     background-color: #666;
 }
+
 #results {
     margin-top: 10px;
-    font-size:22px;
-    color:white;
-    text-align:center;
+    font-size: 22px;
+    color: white;
+    text-align: center;
 }
 </style>
 </head>
-<body style="background-color:#24243E;">
+<body>
 <div id="container">
     <video autoplay="true" id="videoElement"></video>
-    <canvas id="canvasElement" style="display:none;"></canvas>
+    <canvas id="canvasElement" style="display: none;"></canvas>
     <div id="results">Results will appear here</div>
 </div>
 <script>
